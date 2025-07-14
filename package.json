@@ -1,0 +1,32 @@
+{
+  "name": "student-assignment-portal",
+  "version": "1.0.0",
+  "description": "A web application for student assignment submissions with real-time notifications",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-session": "^1.18.1",
+    "mongoose": "^8.15.1",
+    "multer": "^2.0.1",
+    "nodemailer": "^7.0.3",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": [
+    "assignment",
+    "portal",
+    "student",
+    "admin",
+    "real-time"
+  ],
+  "author": "Your Name",
+  "license": "ISC"
+}

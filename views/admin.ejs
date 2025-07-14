@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Assignment Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .uploads-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h3 {
+            color: #333;
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #5a6268;
+        }
+
+        .submissions-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1rem;
+        }
+        .submissions-table th, .submissions-table td {
+            padding: 0.75rem 1.25rem;
+            text-align: left;
+            vertical-align: middle;
+            font-size: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .submissions-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .submissions-table tr:last-child td {
+            border-bottom: none;
+        }
+        .student-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        .student-info .email {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 2px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .btn-small {
+            margin-right: 0;
+        }
+        @media (max-width: 900px) {
+            .submissions-table th, .submissions-table td {
+                padding: 0.5rem 0.5rem;
+                font-size: 0.95rem;
+            }
+        }
+        @media (max-width: 600px) {
+            .submissions-table th, .submissions-table td {
+                padding: 0.4rem 0.2rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .empty-state h4 {
+            margin-bottom: 0.75rem;
+            color: #333;
+            font-size: 1.125rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-new {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .timestamp {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .timestamp .date {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .timestamp .time {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        .grade-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-align: center;
+            min-width: 60px;
+        }
+
+        .grade-excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .grade-good {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .grade-needs-improvement {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .grade-pending {
+            background: #e2e3e5;
+            color: #6c757d;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            margin-right: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        .btn-grade {
+            background: #28a745;
+        }
+
+        .btn-grade:hover {
+            background: #218838;
+        }
+
+        .btn-edit-grade {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-edit-grade:hover {
+            background: #e0a800;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        /* Grade Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .close {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .btn-submit-grade {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-submit-grade:hover {
+            background: #218838;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .submissions-table {
+                font-size: 0.8rem;
+            }
+
+            .submissions-table th,
+            .submissions-table td {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        :root {
+            --bg: #f4f6f8;
+            --text: #222;
+            --card: #fff;
+            --navbar: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --btn: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --input-bg: #f7fafc;
+            --input-border: #e2e8f0;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            --bg: #181a1b;
+            --text: #f4f6f8;
+            --card: #23272f;
+            --navbar: linear-gradient(135deg, #23272f 0%, #181a1b 100%);
+            --btn: linear-gradient(135deg, #23272f 0%, #181a1b 100%);
+            --input-bg: #23272f;
+            --input-border: #444950;
+        }
+        .navbar { background: var(--navbar); }
+        .container, .profile-card, .upload-card, .page-header, .stat-card, .assignments-section, .uploads-section, .main-content, .welcome-section {
+            background: var(--card) !important;
+            color: var(--text) !important;
+        }
+        input, select, textarea {
+            background: var(--input-bg) !important;
+            color: var(--text) !important;
+            border-color: var(--input-border) !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1><i class="fas fa-shield-alt"></i> Admin Dashboard</h1>
+        <div class="user-info">
+            <span>Welcome, Admin</span>
+            <button id="theme-toggle" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:1.3rem;margin:0 0.5rem;vertical-align:middle;">
+                <span id="theme-icon">🌞</span>
+            </button>
+            <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3><%= uploads.length %></h3>
+                <p>Total Submissions</p>
+            </div>
+            <div class="stat-card">
+                <h3><%= uploads.filter(u => new Date(u.createdAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)).length %></h3>
+                <p>Today</p>
+            </div>
+            <div class="stat-card">
+                <h3><%= uploads.filter(u => new Date(u.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length %></h3>
+                <p>This Week</p>
+            </div>
+            <div class="stat-card">
+                <h3><%= new Set(uploads.map(u => u.studentId)).size %></h3>
+                <p>Active Students</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="uploads-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-list"></i> Recent Submissions</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <a href="/admin/upload-assignment" class="btn" style="margin-right: 0;">
+                            <i class="fas fa-plus"></i> Upload Assignment
+                        </a>
+                        <a href="/admin/analytics" class="btn" style="margin-right: 0;">
+                            <i class="fas fa-chart-bar"></i> Analytics
+                        </a>
+                        <button class="refresh-btn" onclick="location.reload()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <% if (uploads.length === 0) { %>
+                    <div class="empty-state">
+                        <h4>No submissions yet</h4>
+                        <p>Students will appear here once they submit assignments</p>
+                    </div>
+                <% } else { %>
+                    <table class="submissions-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Assignment</th>
+                                <th>File</th>
+                                <th>Submitted</th>
+                                <th>Grade</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% uploads.forEach(upload => { %>
+                                <tr>
+                                    <td>
+                                        <div class="student-info">
+                                            <strong><%= upload.studentName %></strong>
+                                            <span class="email"><%= upload.studentId.email %></span>
+                                        </div>
+                                    </td>
+                                    <td><%= upload.course %></td>
+                                    <td><strong><%= upload.title %></strong></td>
+                                    <td>
+                                        <div class="file-info">
+                                            <span class="file-icon"><i class="fas fa-file"></i></span>
+                                            <span><%= upload.fileName %></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="timestamp">
+                                            <span class="date"><%= upload.createdAt.toLocaleDateString() %></span>
+                                            <span class="time"><%= upload.createdAt.toLocaleTimeString() %></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <% if (upload.grade !== null) { %>
+                                            <span class="grade-badge grade-<%= upload.grade >= 8 ? 'excellent' : upload.grade >= 6 ? 'good' : 'needs-improvement' %>">
+                                                <%= upload.grade %>/10
+                                            </span>
+                                        <% } else { %>
+                                            <span class="grade-badge grade-pending">Not Graded</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <a href="/download/<%= upload._id %>" class="btn btn-small">
+                                                <i class="fas fa-download"></i> Download
+                                            </a>
+                                            <% if (upload.grade === null) { %>
+                                                <button class="btn btn-small btn-grade" onclick="openGradeModal('<%= upload._id %>', '<%= upload.studentName %>', '<%= upload.title %>')">
+                                                    <i class="fas fa-star"></i> Grade
+                                                </button>
+                                            <% } else { %>
+                                                <button class="btn btn-small btn-edit-grade" onclick="openGradeModal('<%= upload._id %>', '<%= upload.studentName %>', '<%= upload.title %>', <%= upload.grade %>, '<%= upload.feedback.replace(/'/g, "\\'") %>')">
+                                                    <i class="fas fa-edit"></i> Edit Grade
+                                                </button>
+                                            <% } %>
+                                            <button class="btn btn-small btn-delete" onclick="deleteSubmission('<%= upload._id %>')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grade Modal -->
+    <div id="gradeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Grade Assignment</h3>
+                <span class="close" onclick="closeGradeModal()">&times;</span>
+            </div>
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+            <form id="gradeForm">
+                <div class="form-group">
+                    <label>Student</label>
+                    <input type="text" id="studentName" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Assignment</label>
+                    <input type="text" id="assignmentTitle" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="grade">Grade (0-10) *</label>
+                    <input type="number" id="grade" name="grade" min="0" max="10" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="feedback">Feedback (Optional)</label>
+                    <textarea id="feedback" name="feedback" placeholder="Add your feedback here..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeGradeModal()">Cancel</button>
+                    <button type="submit" class="btn-submit-grade">Submit Grade</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let currentAssignmentId = null;
+
+        // Socket event listeners
+        socket.on('newSubmission', function(data) {
+            location.reload();
+        });
+
+        // Grade modal functions
+        function openGradeModal(assignmentId, studentName, assignmentTitle, grade = null, feedback = '') {
+            currentAssignmentId = assignmentId;
+            document.getElementById('studentName').value = studentName;
+            document.getElementById('assignmentTitle').value = assignmentTitle;
+            document.getElementById('grade').value = grade || '';
+            document.getElementById('feedback').value = feedback || '';
+            document.getElementById('gradeModal').style.display = 'block';
+            
+            // Clear previous messages
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function closeGradeModal() {
+            document.getElementById('gradeModal').style.display = 'none';
+            currentAssignmentId = null;
+        }
+
+        // Handle grade form submission
+        document.getElementById('gradeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const grade = document.getElementById('grade').value;
+            const feedback = document.getElementById('feedback').value;
+            
+            try {
+                const response = await fetch(`/admin/grade/${currentAssignmentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ grade, feedback })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('successMessage').textContent = result.message;
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    
+                    // Reload page after a short delay to show updated grades
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    document.getElementById('errorMessage').textContent = result.error;
+                    document.getElementById('errorMessage').style.display = 'block';
+                    document.getElementById('successMessage').style.display = 'none';
+                }
+            } catch (error) {
+                document.getElementById('errorMessage').textContent = 'An error occurred while grading the assignment.';
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('gradeModal');
+            if (event.target === modal) {
+                closeGradeModal();
+            }
+        }
+
+        // Delete submission function
+        function deleteSubmission(assignmentId) {
+            if (confirm('Are you sure you want to delete this submission?')) {
+                fetch(`/delete/${assignmentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting submission');
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting submission');
+                });
+            }
+        }
+
+        (function() {
+            const root = document.documentElement;
+            const themeToggle = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+            function setTheme(dark) {
+                if (dark) {
+                    document.body.classList.add('dark-mode');
+                    themeIcon.textContent = '🌙';
+                } else {
+                    document.body.classList.remove('dark-mode');
+                    themeIcon.textContent = '🌞';
+                }
+            }
+            // Load preference
+            const darkPref = localStorage.getItem('theme') === 'dark';
+            setTheme(darkPref);
+            themeToggle.addEventListener('click', function() {
+                const isDark = document.body.classList.toggle('dark-mode');
+                localStorage.setItem('theme', isDark ? 'dark' : 'light');
+                themeIcon.textContent = isDark ? '🌙' : '🌞';
+            });
+        })();
+    </script>
+</body>
+</html>

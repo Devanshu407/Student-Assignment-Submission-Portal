@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Assignment Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f6f8;
+            --text: #222;
+            --card: #fff;
+            --navbar: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --btn: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --input-bg: #f7fafc;
+            --input-border: #e2e8f0;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dark-mode {
+            --bg: #181a1b;
+            --text: #f4f6f8;
+            --card: #23272f;
+            --navbar: linear-gradient(135deg, #23272f 0%, #181a1b 100%);
+            --btn: linear-gradient(135deg, #23272f 0%, #181a1b 100%);
+            --input-bg: #23272f;
+            --input-border: #444950;
+        }
+        .profile-card, .upload-card, .page-header, .stat-card, .assignments-section, .uploads-section, .main-content, .welcome-section {
+            background: var(--card) !important;
+            color: var(--text) !important;
+        }
+        input, select, textarea {
+            background: var(--input-bg) !important;
+            color: var(--text) !important;
+            border-color: var(--input-border) !important;
+        }
+        .profile-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            padding: 2.5rem 2rem;
+            max-width: 420px;
+            width: 100%;
+        }
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+            margin: 0 auto 1rem auto;
+            display: block;
+        }
+        .profile-avatar-default {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #e9e9f7;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 1rem auto;
+        }
+        .profile-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .profile-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: #f7fafc;
+            transition: border-color 0.2s;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+            border-color: #667eea;
+            background: #fff;
+        }
+        .btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: box-shadow 0.2s;
+        }
+        .btn:hover {
+            box-shadow: 0 2px 8px rgba(102,126,234,0.15);
+        }
+        .btn-remove {
+            background: #e53e3e;
+            margin-top: 0.5rem;
+        }
+        .btn-remove:hover {
+            background: #c53030;
+        }
+        .divider {
+            border-top: 1px solid #e2e8f0;
+            margin: 2rem 0 1.5rem 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #38a169;
+            font-size: 0.95rem;
+        }
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #e53e3e;
+            font-size: 0.95rem;
+        }
+        .profile-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        @media (max-width: 500px) {
+            .profile-card {
+                padding: 1.25rem 0.5rem;
+            }
+        }
+        .profile-btn {
+            width: 100%;
+            margin-top: 0.4rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.97rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            transition: box-shadow 0.18s, background 0.18s, color 0.18s;
+            padding: 0.65rem 0;
+            box-shadow: 0 1px 4px rgba(102,126,234,0.07);
+            letter-spacing: 0.01em;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            box-shadow: 0 2px 8px rgba(102,126,234,0.18);
+            color: #fff;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+            color: #fff;
+        }
+        .btn-danger:hover, .btn-danger:focus {
+            background: linear-gradient(135deg, #c53030 0%, #a61b1b 100%);
+            box-shadow: 0 2px 8px rgba(229,62,62,0.15);
+            color: #fff;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #4fd1c5 0%, #38b2ac 100%);
+            color: #fff;
+        }
+        .btn-secondary:hover, .btn-secondary:focus {
+            background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+            box-shadow: 0 2px 8px rgba(72,187,120,0.13);
+            color: #fff;
+        }
+        .btn-dashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 0.7rem 0;
+            display: inline-block;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.13);
+            border: none;
+            transition: background 0.18s, box-shadow 0.18s;
+            letter-spacing: 0.01em;
+            text-decoration: none;
+        }
+        .btn-dashboard:hover, .btn-dashboard:focus {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.18);
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <div class="profile-title">My Profile
+            <button id="theme-toggle" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:1.3rem;margin-left:0.5rem;vertical-align:middle;">
+                <span id="theme-icon">🌞</span>
+            </button>
+        </div>
+        <div class="profile-subtitle">Manage your account details</div>
+        <% if (success) { %>
+            <div class="success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+        <!-- Profile Picture -->
+        <% if (user.profilePicture) { %>
+            <img src="/<%= user.profilePicture.replace('\\','/') %>" alt="Profile Picture" class="profile-avatar">
+        <% } else { %>
+            <div class="profile-avatar-default"><i class="fas fa-user"></i></div>
+        <% } %>
+        <form action="/profile/update" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="username">Name</label>
+                <input type="text" id="username" name="username" value="<%= user.username %>" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="<%= user.email %>" required>
+            </div>
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+            </div>
+            <button type="submit" class="btn btn-primary profile-btn"><i class="fas fa-save"></i> Save Changes</button>
+        </form>
+        <% if (user.profilePicture) { %>
+            <form action="/profile/update" method="POST" style="margin-top:0;">
+                <input type="hidden" name="removePicture" value="1">
+                <button type="submit" class="btn btn-danger profile-btn"><i class="fas fa-trash"></i> Remove Picture</button>
+            </form>
+        <% } %>
+        <div class="divider"></div>
+        <div class="profile-title" style="font-size:1.15rem; margin-bottom:1rem;">Change Password</div>
+        <form action="/profile/change-password" method="POST">
+            <div class="form-group">
+                <label for="oldPassword">Old Password</label>
+                <input type="password" id="oldPassword" name="oldPassword" required>
+            </div>
+            <div class="form-group">
+                <label for="newPassword">New Password</label>
+                <input type="password" id="newPassword" name="newPassword" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm New Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6">
+            </div>
+            <button type="submit" class="btn btn-secondary profile-btn"><i class="fas fa-key"></i> Change Password</button>
+        </form>
+        <div style="text-align:center; margin:1.5rem 0 0 0;">
+            <a href="/dashboard" class="btn btn-dashboard profile-btn"><i class="fas fa-home"></i> Dashboard</a>
+        </div>
+    </div>
+    <script>
+    (function() {
+        const root = document.documentElement;
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        function setTheme(dark) {
+            if (dark) {
+                document.body.classList.add('dark-mode');
+                themeIcon.textContent = '🌙';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeIcon.textContent = '🌞';
+            }
+        }
+        // Load preference
+        const darkPref = localStorage.getItem('theme') === 'dark';
+        setTheme(darkPref);
+        themeToggle.addEventListener('click', function() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeIcon.textContent = isDark ? '🌙' : '🌞';
+        });
+    })();
+    </script>
+</body>
+</html> 

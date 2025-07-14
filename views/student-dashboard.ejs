@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Assignment Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #333;
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .navbar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .navbar a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .welcome-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .welcome-section h2 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .welcome-section p {
+            color: #666;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-card h3 {
+            color: #667eea;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+
+        .assignments-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .section-header h3 {
+            color: #333;
+            margin: 0;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .assignments-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .assignments-table th,
+        .assignments-table td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.875rem;
+        }
+
+        .assignments-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .assignments-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-icon {
+            font-size: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-submitted {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .empty-state h4 {
+            margin-bottom: 0.75rem;
+            color: #333;
+            font-size: 1.125rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .timestamp {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .timestamp .date {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .timestamp .time {
+            font-size: 0.75rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 0.75rem;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .assignments-table {
+                font-size: 0.8rem;
+            }
+
+            .assignments-table th,
+            .assignments-table td {
+                padding: 0.5rem 0.75rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        :root {
+            --bg: #f4f6f8;
+            --text: #222;
+            --card: #fff;
+            --navbar: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --btn: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --input-bg: #f7fafc;
+            --input-border: #e2e8f0;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            transition: background 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            --bg: #181a1b;
+            --text: #f4f6f8;
+            --card: #23272f;
+            --navbar: linear-gradient(135deg, #23272f 0%, #181a1b 100%);
+            --btn: linear-gradient(135deg, #23272f 0%, #181a1b 100%);
+            --input-bg: #23272f;
+            --input-border: #444950;
+        }
+        .navbar { background: var(--navbar); }
+        .container, .profile-card, .upload-card, .page-header, .stat-card, .assignments-section, .uploads-section, .main-content, .welcome-section {
+            background: var(--card) !important;
+            color: var(--text) !important;
+        }
+        input, select, textarea {
+            background: var(--input-bg) !important;
+            color: var(--text) !important;
+            border-color: var(--input-border) !important;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>Assignment Portal</h1>
+        <div class="user-info">
+            <span>Welcome, <%= user.username %></span>
+            <button id="theme-toggle" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:1.3rem;margin:0 0.5rem;vertical-align:middle;">
+                <span id="theme-icon">��</span>
+            </button>
+            <a href="/assignments" style="position:relative;"><i class="fas fa-book"></i> Assignments
+                <% if (typeof newAssignmentsCount !== 'undefined' && newAssignmentsCount > 0) { %>
+                    <span style="position:absolute;top:-8px;right:-12px;background:#e53e3e;color:white;font-size:0.75rem;padding:2px 7px;border-radius:12px;font-weight:700;"> <%= newAssignmentsCount %> </span>
+                <% } %>
+            </a>
+            <a href="/performance"><i class="fas fa-chart-line"></i> Performance</a>
+            <a href="/profile"><i class="fas fa-user"></i> My Profile</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h2>Welcome back, <%= user.username %>!</h2>
+            <p>Manage your assignments and track your submissions</p>
+            <a href="/upload" class="btn"><i class="fas fa-upload"></i> Upload New Assignment</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3><%= assignments.length %></h3>
+                <p>Total Submissions</p>
+            </div>
+            <div class="stat-card">
+                <h3><%= assignments.filter(a => new Date(a.createdAt) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length %></h3>
+                <p>This Week</p>
+            </div>
+            <div class="stat-card">
+                <h3><%= assignments.filter(a => new Date(a.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length %></h3>
+                <p>This Month</p>
+            </div>
+        </div>
+
+        <div class="assignments-section">
+            <div class="section-header">
+                <h3><i class="fas fa-list"></i> Submission History</h3>
+            </div>
+
+            <% if (assignments.length === 0) { %>
+                <div class="empty-state">
+                    <h4>No assignments submitted yet</h4>
+                    <p>Start by uploading your first assignment!</p>
+                    <a href="/upload" class="btn"><i class="fas fa-upload"></i> Upload Assignment</a>
+                </div>
+            <% } else { %>
+                <table class="assignments-table">
+                    <thead>
+                        <tr>
+                            <th>Assignment Title</th>
+                            <th>Course</th>
+                            <th>File</th>
+                            <th>Submitted</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% assignments.forEach(assignment => { %>
+                            <tr>
+                                <td><strong><%= assignment.title %></strong></td>
+                                <td><%= assignment.course %></td>
+                                <td>
+                                    <div class="file-info">
+                                        <span class="file-icon"><i class="fas fa-file"></i></span>
+                                        <span><%= assignment.fileName %></span>
+                                    </div>
+                                </td>
+                                <td><%= assignment.createdAt.toLocaleDateString() %></td>
+                                <td>
+                                    <span class="status-badge status-submitted">Submitted</span>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            <% } %>
+        </div>
+
+        <!-- New Assignments Section -->
+        <!-- Removed as per user request -->
+    </div>
+
+    <script>
+    (function() {
+        const root = document.documentElement;
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+        function setTheme(dark) {
+            if (dark) {
+                document.body.classList.add('dark-mode');
+                themeIcon.textContent = '🌙';
+            } else {
+                document.body.classList.remove('dark-mode');
+                themeIcon.textContent = '🌞';
+            }
+        }
+        // Load preference
+        const darkPref = localStorage.getItem('theme') === 'dark';
+        setTheme(darkPref);
+        themeToggle.addEventListener('click', function() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeIcon.textContent = isDark ? '🌙' : '🌞';
+        });
+    })();
+    </script>
+</body>
+</html> 
